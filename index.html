@@ -1,1 +1,32 @@
-<h1>ciao sono teo pecci </h1> 
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Il mio sito personale</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Benvenuto nel mio sito!</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">Chi sono</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Ciao 👋</h2>
+      <p>Questo è il mio primo sito creato con GitHub Pages!</p>
+    </section>
+  </main>
+
+  <footer>
+    <small>&copy; <span id="year"></span> Matteo</small>
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </footer>
+</body>
+</html>
