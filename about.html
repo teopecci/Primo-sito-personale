@@ -7,23 +7,58 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
+  <header class="container">
     <h1>Chi sono</h1>
-    <nav>
+    <nav class="nav">
       <a href="index.html">Home</a>
       <a href="about.html">Chi sono</a>
     </nav>
   </header>
 
-  <main>
-    <p>Mi chiamo Matteo e questo è il mio primo sito web pubblicato su GitHub Pages.</p>
+  <main class="container">
+    <section class="card">
+      <p>Ciao! Mi chiamo <strong id="ownerName">—</strong>.</p>
+      <p>Questa pagina eredita nome e colori automaticamente dal parametro <code>user</code>
+         (o dal dominio/URL se non specificato).</p>
+    </section>
   </main>
 
-  <footer>
-    <small>&copy; <span id="year"></span> Matteo</small>
-    <script>
-      document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+  <footer class="container footer">
+    <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
   </footer>
+
+  <script>
+    const normalize = s => (s || '').trim().toLowerCase();
+    const userToTheme = (u) => {
+      const n = normalize(u);
+      if (n.startsWith('giuli')) return 'giulia';
+      if (n.startsWith('matteo')) return 'matteo';
+      return 'default';
+    };
+    const guessUserFromLocation = () => {
+      const host = normalize(location.hostname);
+      const path = normalize(location.pathname);
+      if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
+      if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
+      return null;
+    };
+
+    const params = new URLSearchParams(location.search);
+    let user = params.get('user') || guessUserFromLocation() || 'Matteo';
+    const theme = userToTheme(user);
+
+    document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(s => s.textContent = user);
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Mantieni solo "user" nei link interni
+    document.querySelectorAll('a[href$=".html"]').forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.origin);
+      const newParams = new URLSearchParams(location.search);
+      newParams.set('user', user);
+      url.search = `?${newParams.toString()}`;
+      a.href = url.pathname + url.search;
+    });
+  </script>
 </body>
 </html>

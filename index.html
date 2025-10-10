@@ -3,30 +3,72 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Il mio sito personale</title>
+  <title>Sito personale</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Benvenuto nel mio sito!</h1>
-    <nav>
+  <header class="container">
+    <h1>Ciao, sono <span id="ownerName">—</span> 👋</h1>
+    <nav class="nav">
       <a href="index.html">Home</a>
       <a href="about.html">Chi sono</a>
     </nav>
   </header>
 
-  <main>
-    <section>
-      <h2>Ciao 👋</h2>
-      <p>Questo è il mio primo sito creato con GitHub Pages!</p>
+  <main class="container">
+    <section class="card">
+      <h2>Benvenuto nel mio sito</h2>
+      <p>Il tema colori cambia automaticamente in base alla persona.</p>
     </section>
   </main>
 
-  <footer>
-    <small>&copy; <span id="year"></span> Matteo</small>
-    <script>
-      document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+  <footer class="container footer">
+    <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
   </footer>
+
+  <script>
+    // --- Utility ---
+    const normalize = s => (s || '').trim().toLowerCase();
+
+    // Mappa automatica user -> tema
+    const userToTheme = (u) => {
+      const n = normalize(u);
+      if (n.startsWith('giuli')) return 'giulia';   // Giuli, Giulia, GiuliA...
+      if (n.startsWith('matteo')) return 'matteo';
+      return 'default';
+    };
+
+    // Prova a indovinare user dal dominio/percorso (se non passato)
+    const guessUserFromLocation = () => {
+      const host = normalize(location.hostname);
+      const path = normalize(location.pathname);
+      if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
+      if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
+      return null;
+    };
+
+    // Leggi parametri
+    const params = new URLSearchParams(location.search);
+    let user = params.get('user') || guessUserFromLocation() || 'Matteo';
+    const theme = userToTheme(user);
+
+    // Imposta nome ui
+    document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(s => s.textContent = user);
+
+    // Anno
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Imposta tema
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Mantieni "user" nella navigazione (il tema verrà ricalcolato dalla pagina di destinazione)
+    document.querySelectorAll('a[href$=".html"]').forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.origin);
+      const newParams = new URLSearchParams(location.search);
+      newParams.set('user', user);        // forziamo solo user
+      url.search = `?${newParams.toString()}`;
+      a.href = url.pathname + url.search;
+    });
+  </script>
 </body>
 </html>
