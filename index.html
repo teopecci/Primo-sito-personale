@@ -9,10 +9,10 @@
 <body>
   <header class="container">
     <h1>Ciao, sono <span id="ownerName">—</span> 👋</h1>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">Chi sono</a>
-    </nav>
+<nav class="nav">
+  <a class="keep-user" href="./index.html">Home</a>
+  <a class="keep-user" href="./about.html">Chi sono</a>
+</nav>
   </header>
 
   <main class="container">
@@ -26,49 +26,44 @@
     <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
   </footer>
 
-  <script>
-    // --- Utility ---
-    const normalize = s => (s || '').trim().toLowerCase();
+<script>
+  // -------- util --------
+  const norm = s => (s||'').trim().toLowerCase();
+  const userToTheme = (u) => {
+    const n = norm(u);
+    if (n.startsWith('giuli')) return 'giulia';
+    if (n.startsWith('matteo')) return 'matteo';
+    return 'default';
+  };
+  const guessUserFromLocation = () => {
+    const host = norm(location.hostname);
+    const path = norm(location.pathname);
+    if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
+    if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
+    return null;
+  };
 
-    // Mappa automatica user -> tema
-    const userToTheme = (u) => {
-      const n = normalize(u);
-      if (n.startsWith('giuli')) return 'giulia';   // Giuli, Giulia, GiuliA...
-      if (n.startsWith('matteo')) return 'matteo';
-      return 'default';
-    };
+  // -------- parametri --------
+  const params = new URLSearchParams(location.search);
+  const user = params.get('user') || guessUserFromLocation() || 'Matteo';
+  document.documentElement.setAttribute('data-theme', userToTheme(user));
 
-    // Prova a indovinare user dal dominio/percorso (se non passato)
-    const guessUserFromLocation = () => {
-      const host = normalize(location.hostname);
-      const path = normalize(location.pathname);
-      if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
-      if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
-      return null;
-    };
+  // UI
+  document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(el => el.textContent = user);
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Leggi parametri
-    const params = new URLSearchParams(location.search);
-    let user = params.get('user') || guessUserFromLocation() || 'Matteo';
-    const theme = userToTheme(user);
-
-    // Imposta nome ui
-    document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(s => s.textContent = user);
-
-    // Anno
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Imposta tema
-    document.documentElement.setAttribute('data-theme', theme);
-
-    // Mantieni "user" nella navigazione (il tema verrà ricalcolato dalla pagina di destinazione)
-    document.querySelectorAll('a[href$=".html"]').forEach(a => {
-      const url = new URL(a.getAttribute('href'), location.origin);
-      const newParams = new URLSearchParams(location.search);
-      newParams.set('user', user);        // forziamo solo user
-      url.search = `?${newParams.toString()}`;
-      a.href = url.pathname + url.search;
-    });
-  </script>
+  // -------- mantieni "user" nei link relativi --------
+  document.querySelectorAll('a.keep-user').forEach(a => {
+    const url = new URL(a.getAttribute('href'), location.href); // rispetta ./about.html
+    const p = new URLSearchParams(url.search);
+    p.set('user', user);
+    url.search = '?' + p.toString();
+    // reimposta href in forma relativa (senza dominio)
+    a.setAttribute('href', url.pathname.replace(location.pathname.split('/').slice(0,-1).join('/'), '').startsWith('/')
+      ? '.' + url.pathname.substring(url.pathname.lastIndexOf('/'))
+      : url.pathname + url.search);
+    a.setAttribute('href', url.pathname + url.search);
+  });
+</script>
 </body>
 </html>
