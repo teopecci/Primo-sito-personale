@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ page.title | default: site.title }}</title>
+  <title>Sito personale</title>
 
   <!-- 👇 LINK RELATIVO PURO: funziona sia online che con Go Live -->
   <link rel="stylesheet" href="assets/style.css" />
@@ -11,20 +11,31 @@
 <body>
   <header class="container">
     <h1>
-      {% if page.show_owner_in_title != false %}
+      
         Ciao, sono <span id="ownerName">—</span> 👋
-      {% else %}
-        {{ page.title | default: site.title }}
-      {% endif %}
+      
     </h1>
-    {% include nav.html %}
+    <nav class="nav">
+  <!-- 👇 link RELATIVI PURI -->
+  <a class="keep-user" href="index.html">Home</a>
+  <a class="keep-user" href="about.html">Chi sono</a>
+</nav>
+
   </header>
 
   <main class="container">
-    {{ content }}
+    <section class="card">
+  <h2>Benvenuto nel mio sito</h2>
+  <p>Il tema colori cambia automaticamente in base alla persona.</p>
+</section>
+
+
   </main>
 
-  {% include footer.html %}
+  <footer class="container footer">
+  <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
+</footer>
+
 
   <script>
     // --- util ---
