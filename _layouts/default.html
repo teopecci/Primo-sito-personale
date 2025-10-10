@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ 'assets/style.css' | relative_url }}" />
+</head>
+<body>
+  <header class="container">
+    <h1>
+      {% if page.show_owner_in_title != false %}
+        Ciao, sono <span id="ownerName">—</span> 👋
+      {% else %}
+        {{ page.title | default: site.title }}
+      {% endif %}
+    </h1>
+    {% include nav.html %}
+  </header>
+
+  <main class="container">
+    {{ content }}
+  </main>
+
+  {% include footer.html %}
+
+  <script>
+    // --- util ---
+    const norm = s => (s||'').trim().toLowerCase();
+    const userToTheme = (u) => {
+      const n = norm(u);
+      if (n.startsWith('giuli')) return 'giulia';
+      if (n.startsWith('matteo')) return 'matteo';
+      return 'default';
+    };
+    const guessUserFromLocation = () => {
+      const host = norm(location.hostname);
+      const path = norm(location.pathname);
+      if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
+      if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
+      return null;
+    };
+
+    // --- parametri + tema ---
+    const params = new URLSearchParams(location.search);
+    const user = params.get('user') || guessUserFromLocation() || 'Matteo';
+    document.documentElement.setAttribute('data-theme', userToTheme(user));
+
+    // UI comune
+    document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(el => el.textContent = user);
+    const y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
+
+    // Mantieni ?user=... su tutti i link con .keep-user SENZA cambiare il path
+    document.querySelectorAll('a.keep-user[href$=".html"]').forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      url.searchParams.set('user', user);
+      a.setAttribute('href', url.pathname + '?' + url.searchParams.toString());
+    });
+  </script>
+</body>
+</html>
