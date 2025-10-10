@@ -10,11 +10,11 @@
   <header class="container">
     <h1>Chi sono</h1>
    <nav class="nav">
-    <a class="keep-user" href="./index.html">Home</a>
-    <a class="keep-user" href="./about.html">Chi sono</a>
-  </nav>
+    <a class="keep-user" href="index.html">Home</a>
+    <a class="keep-user" href="about.html">Chi sono</a>
+   </nav>
   </header>
-  
+
   <main class="container">
     <section class="card">
       <p>Ciao! Mi chiamo <strong id="ownerName">—</strong>.</p>
@@ -27,38 +27,38 @@
     <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
   </footer>
 
-  <script>
-    const normalize = s => (s || '').trim().toLowerCase();
-    const userToTheme = (u) => {
-      const n = normalize(u);
-      if (n.startsWith('giuli')) return 'giulia';
-      if (n.startsWith('matteo')) return 'matteo';
-      return 'default';
-    };
-    const guessUserFromLocation = () => {
-      const host = normalize(location.hostname);
-      const path = normalize(location.pathname);
-      if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
-      if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
-      return null;
-    };
+<script>
+  // ---> util
+  const norm = s => (s||'').trim().toLowerCase();
+  const userToTheme = (u) => {
+    const n = norm(u);
+    if (n.startsWith('giuli')) return 'giulia';
+    if (n.startsWith('matteo')) return 'matteo';
+    return 'default';
+  };
+  const guessUserFromLocation = () => {
+    const host = norm(location.hostname);
+    const path = norm(location.pathname);
+    if (host.includes('giuli') || path.includes('giuli')) return 'Giulia';
+    if (host.includes('matteo') || path.includes('matteo')) return 'Matteo';
+    return null;
+  };
 
-    const params = new URLSearchParams(location.search);
-    let user = params.get('user') || guessUserFromLocation() || 'Matteo';
-    const theme = userToTheme(user);
+  // ---> parametri + tema
+  const params = new URLSearchParams(location.search);
+  const user = params.get('user') || guessUserFromLocation() || 'Matteo';
+  document.documentElement.setAttribute('data-theme', userToTheme(user));
+  document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(el => el.textContent = user);
+  const y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
 
-    document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(s => s.textContent = user);
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.documentElement.setAttribute('data-theme', theme);
-
-    // Mantieni solo "user" nei link interni
-    document.querySelectorAll('a[href$=".html"]').forEach(a => {
-      const url = new URL(a.getAttribute('href'), location.origin);
-      const newParams = new URLSearchParams(location.search);
-      newParams.set('user', user);
-      url.search = `?${newParams.toString()}`;
-      a.href = url.pathname + url.search;
-    });
-  </script>
+  // ---> aggiungi SOLO il parametro user ai link relativi (senza cambiare il path)
+  document.querySelectorAll('a.keep-user').forEach(a => {
+    const url = new URL(a.getAttribute('href'), location.href); // rispetta index.html / about.html
+    url.searchParams.set('user', user);
+    // reimposta HREF in forma relativa (nome file + query)
+    const file = url.pathname.split('/').pop(); // "index.html" o "about.html"
+    a.setAttribute('href', `${file}?${url.searchParams.toString()}`);
+  });
+</script>
 </body>
 </html>

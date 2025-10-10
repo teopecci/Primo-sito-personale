@@ -9,10 +9,11 @@
 <body>
   <header class="container">
     <h1>Ciao, sono <span id="ownerName">—</span> 👋</h1>
-<nav class="nav">
-  <a class="keep-user" href="./index.html">Home</a>
-  <a class="keep-user" href="./about.html">Chi sono</a>
-</nav>
+  <nav class="nav">
+     <a class="keep-user" href="index.html">Home</a>
+     <a class="keep-user" href="about.html">Chi sono</a>
+   </nav>
+
   </header>
 
   <main class="container">
@@ -26,8 +27,8 @@
     <small>&copy; <span id="year"></span> <span id="ownerNameFooter">—</span></small>
   </footer>
 
-<script>
-  // -------- util --------
+ <script>
+  // ---> util
   const norm = s => (s||'').trim().toLowerCase();
   const userToTheme = (u) => {
     const n = norm(u);
@@ -43,27 +44,21 @@
     return null;
   };
 
-  // -------- parametri --------
+  // ---> parametri + tema
   const params = new URLSearchParams(location.search);
   const user = params.get('user') || guessUserFromLocation() || 'Matteo';
   document.documentElement.setAttribute('data-theme', userToTheme(user));
-
-  // UI
   document.querySelectorAll('#ownerName, #ownerNameFooter').forEach(el => el.textContent = user);
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
 
-  // -------- mantieni "user" nei link relativi --------
+  // ---> aggiungi SOLO il parametro user ai link relativi (senza cambiare il path)
   document.querySelectorAll('a.keep-user').forEach(a => {
-    const url = new URL(a.getAttribute('href'), location.href); // rispetta ./about.html
-    const p = new URLSearchParams(url.search);
-    p.set('user', user);
-    url.search = '?' + p.toString();
-    // reimposta href in forma relativa (senza dominio)
-    a.setAttribute('href', url.pathname.replace(location.pathname.split('/').slice(0,-1).join('/'), '').startsWith('/')
-      ? '.' + url.pathname.substring(url.pathname.lastIndexOf('/'))
-      : url.pathname + url.search);
-    a.setAttribute('href', url.pathname + url.search);
+    const url = new URL(a.getAttribute('href'), location.href); // rispetta index.html / about.html
+    url.searchParams.set('user', user);
+    // reimposta HREF in forma relativa (nome file + query)
+    const file = url.pathname.split('/').pop(); // "index.html" o "about.html"
+    a.setAttribute('href', `${file}?${url.searchParams.toString()}`);
   });
-</script>
+ </script>
 </body>
 </html>
